@@ -168,53 +168,53 @@ def main(args):
         else : 
             logging.info("sup loss, semi loss, val_accuracy" + str(loss_s.item()) + " " +  str(loss_us.item()) + " " + str(val_accuracy))
             
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Pseudo labeling \
-                                        of CIFAR10/100 with pytorch")
-    parser.add_argument("--dataset", default="cifar10", 
-                        type=str, choices=["cifar10", "cifar100"])
-    parser.add_argument("--datapath", default="./data/", 
-                        type=str, help="Path to the CIFAR-10/100 dataset")
-    parser.add_argument('--num-labeled', type=int, 
-                        default=4000, help='Total number of labeled samples')
-    parser.add_argument("--lr", default=0.03, type=float, 
-                        help="The initial learning rate") 
-    parser.add_argument("--momentum", default=0.9, type=float,
-                        help="Optimizer momentum")
-    parser.add_argument("--wd", default=0.00005, type=float,
-                        help="Weight decay")
-    parser.add_argument("--expand-labels", action="store_true", 
-                        help="expand labels to fit eval steps")
-    parser.add_argument('--train-batch', default=64, type=int,
-                        help='train batchsize')
-    parser.add_argument('--test-batch', default=64, type=int,
-                        help='train batchsize')
-    parser.add_argument('--total-iter', default=1024*512, type=int,
-                        help='total number of iterations to run')
-    parser.add_argument('--iter-per-epoch', default=1024, type=int,
-                        help="Number of iterations to run per epoch")
-    parser.add_argument('--num-workers', default=1, type=int,
-                        help="Number of workers to launch during training")
-    parser.add_argument('--threshold', type=float, default=0.95,
-                        help='Confidence Threshold for pseudo labeling')
-    parser.add_argument("--dataout", type=str, default="./path/to/output/",
-                        help="Path to save log files")
-    parser.add_argument("--model-depth", type=int, default=28,
-                        help="model depth for wide resnet") 
-    parser.add_argument("--model-width", type=int, default=2,
-                        help="model width for wide resnet")
-    parser.add_argument("--warmup", type=int, default=30,
-                        help="initial supervised warmup")
-    parser.add_argument("--savepath", type=str, default="./log/",
-                        help="initial supervised warmup")
-    parser.add_argument("--lam", type=float, default=1.0,
-                        help="weight for semi-supervised loss")
+# if __name__ == "__main__":
+#     parser = argparse.ArgumentParser(description="Pseudo labeling \
+#                                         of CIFAR10/100 with pytorch")
+#     parser.add_argument("--dataset", default="cifar10", 
+#                         type=str, choices=["cifar10", "cifar100"])
+#     parser.add_argument("--datapath", default="./data/", 
+#                         type=str, help="Path to the CIFAR-10/100 dataset")
+#     parser.add_argument('--num-labeled', type=int, 
+#                         default=4000, help='Total number of labeled samples')
+#     parser.add_argument("--lr", default=0.03, type=float, 
+#                         help="The initial learning rate") 
+#     parser.add_argument("--momentum", default=0.9, type=float,
+#                         help="Optimizer momentum")
+#     parser.add_argument("--wd", default=0.00005, type=float,
+#                         help="Weight decay")
+#     parser.add_argument("--expand-labels", action="store_true", 
+#                         help="expand labels to fit eval steps")
+#     parser.add_argument('--train-batch', default=64, type=int,
+#                         help='train batchsize')
+#     parser.add_argument('--test-batch', default=64, type=int,
+#                         help='train batchsize')
+#     parser.add_argument('--total-iter', default=1024*512, type=int,
+#                         help='total number of iterations to run')
+#     parser.add_argument('--iter-per-epoch', default=1024, type=int,
+#                         help="Number of iterations to run per epoch")
+#     parser.add_argument('--num-workers', default=1, type=int,
+#                         help="Number of workers to launch during training")
+#     parser.add_argument('--threshold', type=float, default=0.95,
+#                         help='Confidence Threshold for pseudo labeling')
+#     parser.add_argument("--dataout", type=str, default="./path/to/output/",
+#                         help="Path to save log files")
+#     parser.add_argument("--model-depth", type=int, default=28,
+#                         help="model depth for wide resnet") 
+#     parser.add_argument("--model-width", type=int, default=2,
+#                         help="model width for wide resnet")
+#     parser.add_argument("--warmup", type=int, default=30,
+#                         help="initial supervised warmup")
+#     parser.add_argument("--savepath", type=str, default="./log/",
+#                         help="initial supervised warmup")
+#     parser.add_argument("--lam", type=float, default=1.0,
+#                         help="weight for semi-supervised loss")
     
 
-    # Add more arguments if you need them
-    # Describe them in help
-    # You can (and should) change the default values of the arguments
+#     # Add more arguments if you need them
+#     # Describe them in help
+#     # You can (and should) change the default values of the arguments
     
-    args = parser.parse_args()
+#     args = parser.parse_args()
 
-    #main(args)
+#     main(args)
