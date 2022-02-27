@@ -149,7 +149,6 @@ def main(args):
             optimizer.step()
 
         val_accuracy = validate(model, test_loader, device)
-        loss_supmeter.add(loss_s.item())
 
         if val_accuracy > best_acc :
             save_dict = {
