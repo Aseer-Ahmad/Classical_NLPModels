@@ -9,12 +9,10 @@ from model.wrn  import WideResNet
 import torch
 import torch.optim as optim
 from torch.utils.data   import DataLoader
-from tensorboardX import SummaryWriter
 
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.optim import lr_scheduler
-from torchnet.meter import MovingAverageValueMeter
 import sys
 
 import logging
@@ -85,11 +83,7 @@ def main(args):
                                 args.num_classes, widen_factor=args.model_width)
     model       = model.to(device)
 
-    writer = SummaryWriter(args.savepath + "/runs")
-    loss_supmeter = MovingAverageValueMeter(5)
-    loss_semimeter = MovingAverageValueMeter(5)
-    val_meter = MovingAverageValueMeter(5)
-
+    
     ############################################################################
     # TODO: SUPPLY your code
     ############################################################################
@@ -168,14 +162,6 @@ def main(args):
                 'accuracy' : val_accuracy
             }
             torch.save(save_dict, "./log/best_checkpoint.pth")
-
-        if epoch > args.warmup :
-            loss_semimeter.add(loss_us.item())
-        val_meter.add(val_accuracy)
-        writer.add_scalar("supervised_loss", loss_supmeter.value()[0], epoch)
-        if epoch > args.warmup :
-            writer.add_scalar("semi_supervised_loss", loss_semimeter.value()[0], epoch)
-        writer.add_scalar("val_accuracy", val_meter.value()[0], epoch) 
 
         if epoch < args.warmup :
             logging.info("sup loss, val_accuracy" + str(loss_s.item()) + " " + str(val_accuracy))
