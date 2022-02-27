@@ -167,7 +167,8 @@ logging.basicConfig(filename="log/debug.log",
 #             logging.info("sup loss, val_accuracy" + str(loss_s.item()) + " " + str(val_accuracy))
 #         else : 
 #             logging.info("sup loss, semi loss, val_accuracy" + str(loss_s.item()) + " " +  str(loss_us.item()) + " " + str(val_accuracy))
-            
+  
+  
 # if __name__ == "__main__":
 #     parser = argparse.ArgumentParser(description="Pseudo labeling \
 #                                         of CIFAR10/100 with pytorch")
