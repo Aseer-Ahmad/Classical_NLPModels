@@ -22,151 +22,151 @@ logging.basicConfig(filename="log/debug.log",
                             datefmt='%H:%M:%S',
                             level=logging.DEBUG)
 
-class CrossEntropyLoss2d(nn.Module):
-    """
-    Cross Entroply NLL Loss
-    """
+# class CrossEntropyLoss2d(nn.Module):
+#     """
+#     Cross Entroply NLL Loss
+#     """
 
-    def __init__(self, weight=None, ignore_index=255,
-                 reduction='mean'):
-        super(CrossEntropyLoss2d, self).__init__()
-        print("Using Cross Entropy Loss")
-        self.nll_loss = nn.NLLLoss(weight, reduction=reduction,
-                                   ignore_index=ignore_index)
+#     def __init__(self, weight=None, ignore_index=255,
+#                  reduction='mean'):
+#         super(CrossEntropyLoss2d, self).__init__()
+#         print("Using Cross Entropy Loss")
+#         self.nll_loss = nn.NLLLoss(weight, reduction=reduction,
+#                                    ignore_index=ignore_index)
 
-    def forward(self, inputs, targets):
-        return self.nll_loss(F.log_softmax(inputs, dim=1), targets)
+#     def forward(self, inputs, targets):
+#         return self.nll_loss(F.log_softmax(inputs, dim=1), targets)
 
-def validate(model, val_loader, device) :
-    model.eval()
-    acc = 0.0
-    cnt = 0
-    for id, data in enumerate(val_loader) :
-        #x_v, y_v = next(val_loader)
-        x_v, y_v = data
-        x_v = x_v.to(device)
-        y_v = y_v.to(device)
-        y_v_pred = model(x_v)
-        prob = F.softmax(y_v_pred, dim=1)
-        accu = accuracy(prob, y_v)
-        acc += accu[0].item()
-        cnt += 1
-    return acc/cnt
+# def validate(model, val_loader, device) :
+#     model.eval()
+#     acc = 0.0
+#     cnt = 0
+#     for id, data in enumerate(val_loader) :
+#         #x_v, y_v = next(val_loader)
+#         x_v, y_v = data
+#         x_v = x_v.to(device)
+#         y_v = y_v.to(device)
+#         y_v_pred = model(x_v)
+#         prob = F.softmax(y_v_pred, dim=1)
+#         accu = accuracy(prob, y_v)
+#         acc += accu[0].item()
+#         cnt += 1
+#     return acc/cnt
 
-def main(args):
-    if args.dataset == "cifar10":
-        args.num_classes = 10
-        labeled_dataset, unlabeled_dataset, test_dataset = get_cifar10(args, 
-                                                                args.datapath)
-    if args.dataset == "cifar100":
-        args.num_classes = 100
-        labeled_dataset, unlabeled_dataset, test_dataset = get_cifar100(args, 
-                                                                args.datapath)
-    args.epoch = math.ceil(args.total_iter / args.iter_per_epoch)
+# def main(args):
+#     if args.dataset == "cifar10":
+#         args.num_classes = 10
+#         labeled_dataset, unlabeled_dataset, test_dataset = get_cifar10(args, 
+#                                                                 args.datapath)
+#     if args.dataset == "cifar100":
+#         args.num_classes = 100
+#         labeled_dataset, unlabeled_dataset, test_dataset = get_cifar100(args, 
+#                                                                 args.datapath)
+#     args.epoch = math.ceil(args.total_iter / args.iter_per_epoch)
     
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+#     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    labeled_loader      = iter(DataLoader(labeled_dataset, 
-                                    batch_size = args.train_batch, 
-                                    shuffle = True, 
-                                    num_workers=args.num_workers))
-    unlabeled_loader    = iter(DataLoader(unlabeled_dataset, 
-                                    batch_size=args.train_batch,
-                                    shuffle = True, 
-                                    num_workers=args.num_workers))
-    test_loader         = DataLoader(test_dataset,
-                                    batch_size = args.test_batch,
-                                    shuffle = False, 
-                                    num_workers=args.num_workers)
+#     labeled_loader      = iter(DataLoader(labeled_dataset, 
+#                                     batch_size = args.train_batch, 
+#                                     shuffle = True, 
+#                                     num_workers=args.num_workers))
+#     unlabeled_loader    = iter(DataLoader(unlabeled_dataset, 
+#                                     batch_size=args.train_batch,
+#                                     shuffle = True, 
+#                                     num_workers=args.num_workers))
+#     test_loader         = DataLoader(test_dataset,
+#                                     batch_size = args.test_batch,
+#                                     shuffle = False, 
+#                                     num_workers=args.num_workers)
     
-    model       = WideResNet(args.model_depth, 
-                                args.num_classes, widen_factor=args.model_width)
-    model       = model.to(device)
+#     model       = WideResNet(args.model_depth, 
+#                                 args.num_classes, widen_factor=args.model_width)
+#     model       = model.to(device)
 
     
-    ############################################################################
-    # TODO: SUPPLY your code
-    ############################################################################
-    criterion = CrossEntropyLoss2d(
-        weight=None, ignore_index=255).cuda()
+#     ############################################################################
+#     # TODO: SUPPLY your code
+#     ############################################################################
+#     criterion = CrossEntropyLoss2d(
+#         weight=None, ignore_index=255).cuda()
     
-    param_groups = model.parameters()
+#     param_groups = model.parameters()
 
-    optimizer = optim.SGD(param_groups,
-                            lr=args.lr,
-                            weight_decay=args.wd,
-                            momentum=args.momentum,
-                            nesterov=False)
-    #scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
+#     optimizer = optim.SGD(param_groups,
+#                             lr=args.lr,
+#                             weight_decay=args.wd,
+#                             momentum=args.momentum,
+#                             nesterov=False)
+#     #scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
 
-    best_acc = 0.0
-    for epoch in range(args.epoch):
-        model.train()
-        for it in range(args.iter_per_epoch):
-            try:
-                x_l, y_l    = next(labeled_loader)
-            except StopIteration:
-                labeled_loader      = iter(DataLoader(labeled_dataset, 
-                                            batch_size = args.train_batch, 
-                                            shuffle = True, 
-                                            num_workers=args.num_workers))
-                x_l, y_l    = next(labeled_loader)
+#     best_acc = 0.0
+#     for epoch in range(args.epoch):
+#         model.train()
+#         for it in range(args.iter_per_epoch):
+#             try:
+#                 x_l, y_l    = next(labeled_loader)
+#             except StopIteration:
+#                 labeled_loader      = iter(DataLoader(labeled_dataset, 
+#                                             batch_size = args.train_batch, 
+#                                             shuffle = True, 
+#                                             num_workers=args.num_workers))
+#                 x_l, y_l    = next(labeled_loader)
             
-            try:
-                x_ul, _     = next(unlabeled_loader)
-            except StopIteration:
-                unlabeled_loader    = iter(DataLoader(unlabeled_dataset, 
-                                            batch_size=args.train_batch,
-                                            shuffle = True, 
-                                            num_workers=args.num_workers))
-                x_ul, _     = next(unlabeled_loader)
+#             try:
+#                 x_ul, _     = next(unlabeled_loader)
+#             except StopIteration:
+#                 unlabeled_loader    = iter(DataLoader(unlabeled_dataset, 
+#                                             batch_size=args.train_batch,
+#                                             shuffle = True, 
+#                                             num_workers=args.num_workers))
+#                 x_ul, _     = next(unlabeled_loader)
             
-            x_l, y_l    = x_l.to(device), y_l.to(device)
-            x_ul        = x_ul.to(device)
-            ####################################################################
-            # TODO: SUPPLY your code
-            ####################################################################
-            ###### warm-up epoch till 100 ######################
-            optimizer.zero_grad()
-            if epoch < args.warmup :
-                y_l_pred = model(x_l) ### the logit scores
-                loss_s = criterion(y_l_pred, y_l)
-                loss_s.backward()
-            else : ####
-                ### get pseudo labels first ######
-                model.eval()
-                y_ul = model(x_ul)
-                prob = F.softmax(y_ul, dim=1)
-                val,lab = torch.max(prob, dim=1)
-                mask = val > args.threshold
-                x_ul_new = x_ul[mask]
-                lab = lab[mask]
-                model.train()
-                y_l_pred = model(x_l) ### the logit scores
-                loss_s = criterion(y_l_pred, y_l)
-                y_ul_pred = model(x_ul_new)
-                loss_us = criterion(y_ul_pred, lab)
-                loss = loss_s + args.lam * loss_us
-                loss.backward()
+#             x_l, y_l    = x_l.to(device), y_l.to(device)
+#             x_ul        = x_ul.to(device)
+#             ####################################################################
+#             # TODO: SUPPLY your code
+#             ####################################################################
+#             ###### warm-up epoch till 100 ######################
+#             optimizer.zero_grad()
+#             if epoch < args.warmup :
+#                 y_l_pred = model(x_l) ### the logit scores
+#                 loss_s = criterion(y_l_pred, y_l)
+#                 loss_s.backward()
+#             else : ####
+#                 ### get pseudo labels first ######
+#                 model.eval()
+#                 y_ul = model(x_ul)
+#                 prob = F.softmax(y_ul, dim=1)
+#                 val,lab = torch.max(prob, dim=1)
+#                 mask = val > args.threshold
+#                 x_ul_new = x_ul[mask]
+#                 lab = lab[mask]
+#                 model.train()
+#                 y_l_pred = model(x_l) ### the logit scores
+#                 loss_s = criterion(y_l_pred, y_l)
+#                 y_ul_pred = model(x_ul_new)
+#                 loss_us = criterion(y_ul_pred, lab)
+#                 loss = loss_s + args.lam * loss_us
+#                 loss.backward()
 
-            optimizer.step()
+#             optimizer.step()
 
-        val_accuracy = validate(model, test_loader, device)
-        loss_supmeter.add(loss_s.item())
+#         val_accuracy = validate(model, test_loader, device)
+#         loss_supmeter.add(loss_s.item())
 
-        if val_accuracy > best_acc :
-            save_dict = {
-                'epoch' : epoch,
-                'state_dict' : model.state_dict(),
-                'optim' : optimizer.state_dict(),
-                'accuracy' : val_accuracy
-            }
-            torch.save(save_dict, "./log/best_checkpoint.pth")
+#         if val_accuracy > best_acc :
+#             save_dict = {
+#                 'epoch' : epoch,
+#                 'state_dict' : model.state_dict(),
+#                 'optim' : optimizer.state_dict(),
+#                 'accuracy' : val_accuracy
+#             }
+#             torch.save(save_dict, "./log/best_checkpoint.pth")
 
-        if epoch < args.warmup :
-            logging.info("sup loss, val_accuracy" + str(loss_s.item()) + " " + str(val_accuracy))
-        else : 
-            logging.info("sup loss, semi loss, val_accuracy" + str(loss_s.item()) + " " +  str(loss_us.item()) + " " + str(val_accuracy))
+#         if epoch < args.warmup :
+#             logging.info("sup loss, val_accuracy" + str(loss_s.item()) + " " + str(val_accuracy))
+#         else : 
+#             logging.info("sup loss, semi loss, val_accuracy" + str(loss_s.item()) + " " +  str(loss_us.item()) + " " + str(val_accuracy))
             
 # if __name__ == "__main__":
 #     parser = argparse.ArgumentParser(description="Pseudo labeling \
