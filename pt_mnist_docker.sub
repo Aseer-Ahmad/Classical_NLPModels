@@ -1,9 +1,9 @@
 universe 		= docker
 docker_image 		= pytorch/pytorch:latest
-executable              = mnist.py
-output                  = mnist_lenet.$(ClusterId).$(ProcId).ckpt
-error                   = out.$(ClusterId).$(ProcId).err
-log                     = out.$(ClusterId).log
+executable              = main.py
+output                  = psl_out.$(ClusterId).$(ProcId).ckpt
+error                   = psl_out.$(ClusterId).$(ProcId).err
+log                     = psl_out.$(ClusterId).log
 should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
 request_GPUs = 1
