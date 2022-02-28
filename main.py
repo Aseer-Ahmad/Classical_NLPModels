@@ -227,9 +227,10 @@ def main(args):
 
         if epoch < args.warmup :
             logging.info("sup loss, val_accuracy " + str(loss_s.item()) + " " + str(val_accuracy))
-            reportResults(args, model, test_dataset, device, args.dataset, criterion)
         else : 
             logging.info("sup loss, semi loss, val_accuracy " + str(loss_s.item()) + " " +  str(loss_us.item()) + " " + str(val_accuracy))
+    
+    reportResults(args, model, test_dataset, device, args.dataset, criterion)
             
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Pseudo labeling \
