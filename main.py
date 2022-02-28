@@ -1,34 +1,23 @@
 #!/usr/bin/env python3
-
 import argparse
 import math
 
-from sklearn.model_selection import train_test_split
-import numpy as np
-
 from dataloader import get_cifar10, get_cifar100
-from utils import accuracy
+from utils      import accuracy
 
-from model.wrn import WideResNet
+from model.wrn  import WideResNet
 
 import torch
 import torch.optim as optim
-from torch.utils.data import DataLoader
-#from tensorboardX import SummaryWriter
+from torch.utils.data   import DataLoader
 
 import torch.nn as nn
 import torch.nn.functional as F
-#from torch.optim import lr_scheduler
-#from torchnet.meter import MovingAverageValueMeter
+
+
 import sys
 
 import logging
-
-import os
-
-filename = "log/debug.log"
-os.makedirs(os.path.dirname(filename), exist_ok = True)
-
 logging.basicConfig(filename="log/debug.log",
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -50,10 +39,9 @@ class CrossEntropyLoss2d(nn.Module):
     def forward(self, inputs, targets):
         return self.nll_loss(F.log_softmax(inputs, dim=1), targets)
 
-def validate(model, val_loader, device, criterion) :
+def validate(model, val_loader, device) :
     model.eval()
     acc = 0.0
-    loss = 0.0
     cnt = 0
     for id, data in enumerate(val_loader) :
         #x_v, y_v = next(val_loader)
@@ -64,46 +52,9 @@ def validate(model, val_loader, device, criterion) :
         prob = F.softmax(y_v_pred, dim=1)
         accu = accuracy(prob, y_v)
         acc += accu[0].item()
-        loss_v = criterion(y_v_pred, y_v)
-        loss += loss_v.item()
         cnt += 1
-    return acc/cnt, loss/cnt
-    
-    
-def reportResults(args, model, val_dataset, device, dataset_type, criterion):
-    model.eval()
-    acc = 0.0
-    cnt = 0
-    error = 0.0
+    return acc/cnt
 
-    if dataset_type == "cifar10":
-	
-	targets = val_dataset.targets
-	val250_idx, _ = train_test_split(np.arange(len(targets)), train_size = 0.025, shuffle = True, stratify = targets)
-	val4000_idx, _ = train_test_split(np.arange(len(targets)), train_size = 0.4, shuffle = True, stratify = targets)
-	
-	val250_loader = DataLoader(val_dataset, batch_size=args.test_batch, sampler=torch.utils.data.SubsetRandomSampler(val250_idx), num_workers=args.num_workers)
-	acc, error = validate(model, val250_loader, device, criterion)
-	logging.info("Cifar10 Report , Sample size : 250 PSL c_threshold, " + str(args.threshold)+ " accuracy : " + str(acc) + " error : " + str(error))
-	
-	val4000_loader = DataLoader(val_dataset, batch_size=args.test_batch, sampler=torch.utils.data.SubsetRandomSampler(val4000_idx), num_workers=args.num_workers)
-	acc, error = validate(model, val4000_loader, device, criterion)
-	logging.info("Cifar10 Report , Sample size : 4000 PSL c_threshold, " + str(args.threshold) + " accuracy : " + str(acc) + " error : " + str(error))
-	
-    if dataset_type == "cifar100":
-	
-        targets = val_dataset.targets
-        
-        val2500_idx, _ = train_test_split(np.arange(len(targets)), train_size = 0.25, shuffle = True, stratify = targets)
-        val2500_loader = DataLoader(val_dataset, batch_size=args.test_batch, sampler=torch.utils.data.SubsetRandomSampler(val2500_idx), num_workers=args.num_workers)
-        acc, error = validate(model, val2500_loader, device, criterion)
-        logging.info("Cifar100 Report , Sample size : 2500 PSL c_threshold, " + str(args.threshold)+ " accuracy : " + str(acc) + " error : " + str(error))
-        
-        val10000_loader = DataLoader(val_dataset, batch_size=args.test_batch, shuffle = False, num_workers=args.num_workers)
-        acc, error = validate(model, val10000_loader, device, criterion)
-        logging.info("Cifar100 Report , Sample size : 10000 PSL c_threshold, " + str(args.threshold) + " accuracy : " + str(acc) + " error : " + str(error))
-		
-		
 def main(args):
     if args.dataset == "cifar10":
         args.num_classes = 10
@@ -133,11 +84,6 @@ def main(args):
     model       = WideResNet(args.model_depth, 
                                 args.num_classes, widen_factor=args.model_width)
     model       = model.to(device)
-
-    #writer = SummaryWriter(args.savepath + "/runs")
-    #loss_supmeter = MovingAverageValueMeter(5)
-    #loss_semimeter = MovingAverageValueMeter(5)
-    #val_meter = MovingAverageValueMeter(5)
 
     ############################################################################
     # TODO: SUPPLY your code
@@ -187,7 +133,7 @@ def main(args):
                 y_l_pred = model(x_l) ### the logit scores
                 loss_s = criterion(y_l_pred, y_l)
                 loss_s.backward()
-            else :
+            else : ####
                 ### get pseudo labels first ######
                 model.eval()
                 y_ul = model(x_ul)
@@ -206,8 +152,7 @@ def main(args):
 
             optimizer.step()
 
-        val_accuracy, _ = validate(model, test_loader, device, criterion)
-        #loss_supmeter.add(loss_s.item())
+        val_accuracy = validate(model, test_loader, device)
 
         if val_accuracy > best_acc :
             save_dict = {
@@ -217,22 +162,11 @@ def main(args):
                 'accuracy' : val_accuracy
             }
             torch.save(save_dict, "./log/best_checkpoint.pth")
-            best_acc = val_accuracy
-
-        #if epoch > args.warmup :
-        #    loss_semimeter.add(loss_us.item())
-        #val_meter.add(val_accuracy)
-        #writer.add_scalar("supervised_loss", loss_supmeter.value()[0], epoch)
-        #if epoch > args.warmup :
-        #    writer.add_scalar("semi_supervised_loss", loss_semimeter.value()[0], epoch)
-        #writer.add_scalar("val_accuracy", val_meter.value()[0], epoch) 
 
         if epoch < args.warmup :
-            logging.info("sup loss, val_accuracy " + str(loss_s.item()) + " " + str(val_accuracy))
+            logging.info("sup loss, val_accuracy" + str(loss_s.item()) + " " + str(val_accuracy))
         else : 
-            logging.info("sup loss, semi loss, val_accuracy " + str(loss_s.item()) + " " +  str(loss_us.item()) + " " + str(val_accuracy))
-    
-    reportResults(args, model, test_dataset, device, args.dataset, criterion)
+            logging.info("sup loss, semi loss, val_accuracy" + str(loss_s.item()) + " " +  str(loss_us.item()) + " " + str(val_accuracy))
             
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Pseudo labeling \
@@ -282,5 +216,5 @@ if __name__ == "__main__":
     # You can (and should) change the default values of the arguments
     
     args = parser.parse_args()
-	
+
     main(args)
