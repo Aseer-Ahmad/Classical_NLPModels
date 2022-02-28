@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import argparse
 import math
 
@@ -70,39 +69,37 @@ def validate(model, val_loader, device, criterion) :
     
     
 def reportResults(args, model, val_dataset, device, dataset_type, criterion):
-    
-	model.eval()
-	acc = 0.0
-	cnt = 0
-	error = 0.0
+    model.eval()
+    acc = 0.0
+    cnt = 0
+    error = 0.0
 
-	if dataset_type == "cifar10":
-
-		targets = val_dataset.targets
-		
-		val250_idx, _ = train_test_split(np.arange(len(targets)), train_size = 0.025, shuffle = True, stratify = targets)
-		val4000_idx, _ = train_test_split(np.arange(len(targets)), train_size = 0.4, shuffle = True, stratify = targets)
-
-		val250_loader = DataLoader(val_dataset, batch_size=args.test_batch, sampler=torch.utils.data.SubsetRandomSampler(val250_idx), num_workers=args.num_workers)
-		acc, error = validate(model, val250_loader, device, criterion)
-		logging.info("Cifar10 Report , Sample size : 250 PSL c_threshold, " + str(args.threshold)+ " accuracy : " + str(acc) + " error : " + str(error))
-
-		val4000_loader = DataLoader(val_dataset, batch_size=args.test_batch, sampler=torch.utils.data.SubsetRandomSampler(val4000_idx), num_workers=args.num_workers)
-		acc, error = validate(model, val4000_loader, device, criterion)
-		logging.info("Cifar10 Report , Sample size : 4000 PSL c_threshold, " + str(args.threshold) + " accuracy : " + str(acc) + " error : " + str(error))
-
-	if dataset_type == "cifar100":
-
-		targets = val_dataset.targets
-
-		val2500_idx, _ = train_test_split(np.arange(len(targets)), train_size = 0.25, shuffle = True, stratify = targets)
-		val2500_loader = DataLoader(val_dataset, batch_size=args.test_batch, sampler=torch.utils.data.SubsetRandomSampler(val2500_idx), num_workers=args.num_workers)
-		acc, error = validate(model, val2500_loader, device, criterion)
-		logging.info("Cifar100 Report , Sample size : 2500 PSL c_threshold, " + str(args.threshold)+ " accuracy : " + str(acc) + " error : " + str(error))
-
-		val10000_loader = DataLoader(val_dataset, batch_size=args.test_batch, shuffle = False, num_workers=args.num_workers)
-		acc, error = validate(model, val10000_loader, device, criterion)
-		logging.info("Cifar100 Report , Sample size : 10000 PSL c_threshold, " + str(args.threshold) + " accuracy : " + str(acc) + " error : " + str(error))
+    if dataset_type == "cifar10":
+	
+	targets = val_dataset.targets
+	val250_idx, _ = train_test_split(np.arange(len(targets)), train_size = 0.025, shuffle = True, stratify = targets)
+	val4000_idx, _ = train_test_split(np.arange(len(targets)), train_size = 0.4, shuffle = True, stratify = targets)
+	
+	val250_loader = DataLoader(val_dataset, batch_size=args.test_batch, sampler=torch.utils.data.SubsetRandomSampler(val250_idx), num_workers=args.num_workers)
+	acc, error = validate(model, val250_loader, device, criterion)
+	logging.info("Cifar10 Report , Sample size : 250 PSL c_threshold, " + str(args.threshold)+ " accuracy : " + str(acc) + " error : " + str(error))
+	
+	val4000_loader = DataLoader(val_dataset, batch_size=args.test_batch, sampler=torch.utils.data.SubsetRandomSampler(val4000_idx), num_workers=args.num_workers)
+	acc, error = validate(model, val4000_loader, device, criterion)
+	logging.info("Cifar10 Report , Sample size : 4000 PSL c_threshold, " + str(args.threshold) + " accuracy : " + str(acc) + " error : " + str(error))
+	
+    if dataset_type == "cifar100":
+	
+        targets = val_dataset.targets
+        
+        val2500_idx, _ = train_test_split(np.arange(len(targets)), train_size = 0.25, shuffle = True, stratify = targets)
+        val2500_loader = DataLoader(val_dataset, batch_size=args.test_batch, sampler=torch.utils.data.SubsetRandomSampler(val2500_idx), num_workers=args.num_workers)
+        acc, error = validate(model, val2500_loader, device, criterion)
+        logging.info("Cifar100 Report , Sample size : 2500 PSL c_threshold, " + str(args.threshold)+ " accuracy : " + str(acc) + " error : " + str(error))
+        
+        val10000_loader = DataLoader(val_dataset, batch_size=args.test_batch, shuffle = False, num_workers=args.num_workers)
+        acc, error = validate(model, val10000_loader, device, criterion)
+        logging.info("Cifar100 Report , Sample size : 10000 PSL c_threshold, " + str(args.threshold) + " accuracy : " + str(acc) + " error : " + str(error))
 		
 		
 def main(args):
