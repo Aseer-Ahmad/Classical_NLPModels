@@ -78,17 +78,17 @@ def reportResults(args, model, val_dataset, device, dataset_type, criterion):
 
     if dataset_type == "cifar10":
 	
-	    targets = val_dataset.targets
-	    val250_idx, _ = train_test_split(np.arange(len(targets)), train_size = 0.025, shuffle = True, stratify = targets)
-	    val4000_idx, _ = train_test_split(np.arange(len(targets)), train_size = 0.4, shuffle = True, stratify = targets)
+	targets = val_dataset.targets
+	val250_idx, _ = train_test_split(np.arange(len(targets)), train_size = 0.025, shuffle = True, stratify = targets)
+	val4000_idx, _ = train_test_split(np.arange(len(targets)), train_size = 0.4, shuffle = True, stratify = targets)
 	
-	    val250_loader = DataLoader(val_dataset, batch_size=args.test_batch, sampler=torch.utils.data.SubsetRandomSampler(val250_idx), num_workers=args.num_workers)
-	    acc, error = validate(model, val250_loader, device, criterion)
-	    logging.info("Cifar10 Report , Sample size : 250 PSL c_threshold, " + str(args.threshold)+ " accuracy : " + str(acc) + " error : " + str(error))
+	val250_loader = DataLoader(val_dataset, batch_size=args.test_batch, sampler=torch.utils.data.SubsetRandomSampler(val250_idx), num_workers=args.num_workers)
+	acc, error = validate(model, val250_loader, device, criterion)
+	logging.info("Cifar10 Report , Sample size : 250 PSL c_threshold, " + str(args.threshold)+ " accuracy : " + str(acc) + " error : " + str(error))
 	
-	    val4000_loader = DataLoader(val_dataset, batch_size=args.test_batch, sampler=torch.utils.data.SubsetRandomSampler(val4000_idx), num_workers=args.num_workers)
-	    acc, error = validate(model, val4000_loader, device, criterion)
-	    logging.info("Cifar10 Report , Sample size : 4000 PSL c_threshold, " + str(args.threshold) + " accuracy : " + str(acc) + " error : " + str(error))
+	val4000_loader = DataLoader(val_dataset, batch_size=args.test_batch, sampler=torch.utils.data.SubsetRandomSampler(val4000_idx), num_workers=args.num_workers)
+	acc, error = validate(model, val4000_loader, device, criterion)
+	logging.info("Cifar10 Report , Sample size : 4000 PSL c_threshold, " + str(args.threshold) + " accuracy : " + str(acc) + " error : " + str(error))
 	
     if dataset_type == "cifar100":
 	
